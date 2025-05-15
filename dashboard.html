@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+
+
+{% block title %}Dashboard{% endblock %}
+
+
+{% block content %}
+<h1 style="margin-bottom: 20px;">📊 Dashboard Overview</h1>
+
+
+<!-- Summary Cards -->
+<div class="cards">
+    <div class="card card-blue">
+        <h3>Total Applicants</h3>
+        <p>{{ total }}</p>
+    </div>
+</div>
+
+
+<div class="chart-container">
+    <h3>🏆 Top 3 Programs (Most Applicants)</h3>
+    <ul>
+        {% for program in top_programs %}
+            <li><strong>{{ program[0] }}</strong>: {{ program[1] }} applicants</li>
+        {% endfor %}
+    </ul>
+</div>
+
+
+<!-- Flex Layout for Charts -->
+<div class="flex-charts">
+    <!-- Applicants by Program (Doughnut) -->
+    <div class="chart-box">
+        <h3>Applicants by Program</h3>
+        <div class="chart-wrapper">
+            <canvas id="programChart"></canvas>
+        </div>
+    </div>
+
+
+    <!-- Approved vs Pending (Stacked Bar) -->
+    <div class="chart-box">
+        <h3>Approved vs Pending Applicants</h3>
+        <div class="chart-wrapper">
+            <canvas id="statusStackedChart"></canvas>
+        </div>
+    </div>
+</div>
+
+
+<!-- Approval Rate per Program -->
+<div class="chart-container">
+    <h3>Approval Rate per Program (%)</h3>
+    <div class="chart-wrapper">
+        <canvas id="approvalChart"></canvas>
+    </div>
+</div>
+
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+<script>
+// Doughnut Chart - Applicants by Program
+const ctxProgram = document.getElementById('programChart').getContext('2d');
+new Chart(ctxProgram, {
+    type: 'doughnut',
+    data: {
+        labels: {{ program_labels|tojson }},
+        datasets: [{
+            data: {{ program_data|tojson }},
+            backgroundColor: ['#ef4444', '#3b82f6', '#8b5cf6', '#ec4899', '#facc15', '#10b981']
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { position: 'bottom' }
+        }
+    }
+});
+
+
+// Stacked Bar Chart - Approved vs Pending
+const ctxStatus = document.getElementById('statusStackedChart').getContext('2d');
+new Chart(ctxStatus, {
+    type: 'bar',
+    data: {
+        labels: {{ program_labels|tojson }},
+        datasets: [
+            { label: 'Approved', data: {{ approved_per_program|tojson }}, backgroundColor: '#10b981' },
+            { label: 'Pending', data: {{ pending_per_program|tojson }}, backgroundColor: '#facc15' }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            x: { stacked: true },
+            y: { stacked: true, beginAtZero: true }
+        },
+        plugins: {
+            legend: { position: 'bottom' }
+        }
+    }
+});
+
+
+// Approval Rate per Program - Horizontal Bar
+const ctxApproval = document.getElementById('approvalChart').getContext('2d');
+new Chart(ctxApproval, {
+    type: 'bar',
+    data: {
+        labels: {{ program_labels|tojson }},
+        datasets: [{
+            label: 'Approval Rate (%)',
+            data: {{ approval_rates|tojson }},
+            backgroundColor: '#3b82f6'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        indexAxis: 'y',
+        scales: {
+            x: { beginAtZero: true, max: 100 }
+        },
+        plugins: {
+            legend: { display: false }
+        }
+    }
+});
+</script>
+
+
+{% endblock %}

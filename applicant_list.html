@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+
+{% block title %}Applicant List{% endblock %}
+
+
+{% block content %}
+<h1>🧑‍🎓 Applicant List</h1>
+
+
+<input type="text" id="searchInput" onkeyup="searchApplicant()" placeholder="Search by name..." style="margin-bottom: 15px; padding: 8px; width: 300px;">
+
+
+<table id="applicantTable">
+    <thead>
+        <tr>
+            <th>No.</th>
+            <th>Name</th>
+            <th>Course</th>
+            <th>Birthdate</th>
+            <th>Age</th>
+            <th>Address</th>
+            <th>Mobile</th>
+            <th>Gender</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for applicant in applicants %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ applicant['first_name'] }} {{ applicant['middle_name'] }} {{ applicant['last_name'] }}</td>
+            <td>{{ applicant['course'] }}</td>
+            <td>{{ applicant['birthdate'] }}</td>
+            <td>{{ applicant['age'] }}</td>
+            <td>{{ applicant['address'] }}</td>
+            <td>{{ applicant['mobile_no'] }}</td>
+            <td>{{ applicant['gender'] }}</td>
+            <td>{{ applicant['status'] }}</td>
+            <td>
+                <a href="/edit-applicant/{{ applicant['id'] }}" class="btn-edit">✏️ Edit</a>
+                <a href="/delete-applicant/{{ applicant['id'] }}" class="btn-delete" onclick="return confirm('Delete this applicant?')">❌ Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+<!-- ✅ Working JavaScript Search -->
+<script>
+function searchApplicant() {
+    const input = document.getElementById("searchInput").value.toUpperCase();
+    const rows = document.querySelectorAll("#applicantTable tbody tr");
+
+
+    rows.forEach(row => {
+        const nameCell = row.cells[1]; // Column index for Name
+        if (nameCell) {
+            const nameText = nameCell.textContent || nameCell.innerText;
+            row.style.display = nameText.toUpperCase().includes(input) ? "" : "none";
+        }
+    });
+}
+</script>
+{% endblock %}
+
+
